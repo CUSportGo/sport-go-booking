@@ -25,14 +25,14 @@ export class BookingRepository {
         OR: [
           {
             startAt: {
-              gt: startAt,
+              gte: startAt,
               lt: endAt,
             },
           },
           {
             endAt: {
               gt: startAt,
-              lt: endAt,
+              lte: endAt,
             },
           },
         ],
