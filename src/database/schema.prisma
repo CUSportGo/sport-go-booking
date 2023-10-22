@@ -15,12 +15,13 @@ model Booking {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   sportAreaID String
+  sportType   String
   areaID      String
   userID      String
   startAt     DateTime
   endAt       DateTime
   isCancel    Boolean
 
-  @@index([sportAreaID, areaID, startAt])
+  @@index([sportAreaID, sportType, areaID, startAt])
   @@index([userID])
 }

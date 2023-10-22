@@ -14,8 +14,10 @@ export class BookingService {
 
   public async createBooking(booking: BookingInfo) {
     try {
+      // check sport
       const bookings = await this.bookingRepo.checkAvailability(
         booking.sportAreaID,
+        booking.sportType,
         booking.areaID,
         booking.startAt,
         booking.endAt,
@@ -28,6 +30,7 @@ export class BookingService {
       const createdBooking = {
         id: bookingId,
         sportAreaID: booking.sportAreaID,
+        sportType: booking.sportType,
         areaID: booking.areaID,
         userID: booking.userID,
         startAt: booking.startAt,

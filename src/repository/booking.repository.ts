@@ -14,6 +14,7 @@ export class BookingRepository {
 
   async checkAvailability(
     sportAreaID: string,
+    sportType: string,
     areaID: string,
     startAt: string,
     endAt: string,
@@ -22,6 +23,7 @@ export class BookingRepository {
       where: {
         sportAreaID: sportAreaID,
         areaID: areaID,
+        sportType: sportType,
         OR: [
           {
             startAt: {
