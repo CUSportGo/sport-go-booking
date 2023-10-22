@@ -22,14 +22,20 @@ export class BookingRepository {
       where: {
         sportAreaID: sportAreaID,
         areaID: areaID,
-        startAt: {
-          gte: startAt,
-          lte: endAt,
-        },
-        endAt: {
-          gte: startAt,
-          lte: endAt,
-        },
+        OR: [
+          {
+            startAt: {
+              gt: startAt,
+              lt: endAt,
+            },
+          },
+          {
+            endAt: {
+              gt: startAt,
+              lt: endAt,
+            },
+          },
+        ],
       },
     });
   }
