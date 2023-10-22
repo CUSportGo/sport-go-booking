@@ -20,7 +20,7 @@ export class BookingService {
         booking.startAt,
         booking.endAt,
       );
-      if (bookings) {
+      if (bookings && bookings.length > 0) {
         throw new ForbiddenException('Forbidden permission');
       }
 
