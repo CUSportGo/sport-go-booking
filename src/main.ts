@@ -11,15 +11,15 @@ async function bootstrap() {
     options: {
       package: 'booking',
       protoPath: join(__dirname, 'proto/booking.proto'),
-      url: 'localhost:8084',
+      url: process.env.BOOKING_GRPC_URL,
     },
   };
 
   const rabbitMqOption: MicroserviceOptions = {
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://localhost:5672'],
-      queue: 'sport_booking',
+      urls: [process.env.RABBITMQ_URL],
+      queue: process.env.BOOKING_QUEUE,
       queueOptions: {
         durable: false,
       },
