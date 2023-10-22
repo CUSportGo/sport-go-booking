@@ -15,7 +15,19 @@ async function bootstrap() {
     },
   };
 
+  const rabbitMqOption: MicroserviceOptions = {
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://localhost:5672'],
+      queue: 'sport_booking',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  };
+
   app.connectMicroservice(bookingGrpcOption);
+  app.connectMicroservice(rabbitMqOption);
 
   await app.startAllMicroservices();
 }
