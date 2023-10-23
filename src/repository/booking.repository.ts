@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BookingRepository {
-  constructor(private db: PrismaService) {}
+  constructor(private db: PrismaService) { }
 
   async create(createdBooking: Prisma.BookingCreateInput): Promise<Booking> {
     return await this.db.booking.create({
@@ -14,6 +14,7 @@ export class BookingRepository {
 
   async checkAvailability(
     sportAreaID: string,
+    sportType: string,
     areaID: string,
     startAt: string,
     endAt: string,
@@ -22,6 +23,7 @@ export class BookingRepository {
       where: {
         sportAreaID: sportAreaID,
         areaID: areaID,
+        sportType: sportType,
         OR: [
           {
             startAt: {
