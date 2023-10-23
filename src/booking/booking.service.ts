@@ -7,14 +7,35 @@ import {
 import { BookingRepository } from '../repository/booking.repository';
 import { BookingInfo } from './booking.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { SportareaService } from '../sportarea/sportarea.service';
+import { commonUtils } from '../utils/common.utils';
 
 @Injectable()
 export class BookingService {
-  constructor(private bookingRepo: BookingRepository) {}
+  constructor(
+    private bookingRepo: BookingRepository,
+    private sportareaService: SportareaService,
+  ) {}
 
   public async createBooking(booking: BookingInfo) {
     try {
-      // check sport
+      const area = await this.sportareaService.getAreaById({
+        sportAreaId: booking.sportAreaID,
+        sportType: booking.sportType,
+        areaId: booking.areaID,
+      });
+
+      if (
+        !commonUtils.checkValidBookingTime(
+          booking.startAt,
+          booking.endAt,
+          area.data.openTime,
+          area.data.closeTime,
+        )
+      ) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+
       const bookings = await this.bookingRepo.checkAvailability(
         booking.sportAreaID,
         booking.sportType,

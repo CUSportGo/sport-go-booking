@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package sportarea;
+
+service SportareaService {
+  rpc getAreaById(GetAreaByIdRequest) returns (GetAreaByIdResponse) {}
+}
+
+message GetAreaByIdRequest {
+  string sportAreaId = 1;
+  string sportType = 2;
+  string areaId = 3;
+}
+
+message GetAreaByIdResponse {
+  SportDetail data = 1;
+}
+
+message SportDetail {
+  string name = 1;
+  string openTime = 2;
+  string closeTime = 3;
+  string price = 4;
+}
