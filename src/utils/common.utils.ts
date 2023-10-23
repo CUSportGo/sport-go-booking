@@ -1,25 +1,29 @@
-import { DateTime, Interval } from 'luxon';
-
 const checkValidBookingTime = (
   startAt: string,
   endAt: string,
   openAt: string,
   closeAt: string,
 ) => {
-  const bookingStartAt = DateTime.fromISO(startAt);
-  const bookingEndAt = DateTime.fromISO(endAt);
+  const bookingStartAt = new Date(startAt);
+  const bookingEndAt = new Date(endAt);
 
-  const openTime = DateTime.fromFormat(openAt, 'HH:mm').toTime();
-  const closeTime = DateTime.fromFormat(closeAt, 'HH:mm').toTime();
+  const [openHour, openMinute] = openAt.split(':').map(Number);
+  const [closeHour, closeMinute] = closeAt.split(':').map(Number);
 
-  const bookingInterval = Interval.fromDateTimes(bookingStartAt, bookingEndAt);
-  const sportAreaInterval = Interval.fromDateTimes(
-    DateTime.fromObject({ hour: openTime.hour, minute: openTime.minute }),
-    DateTime.fromObject({ hour: closeTime.hour, minute: closeTime.minute }),
-  );
-
-  if (sportAreaInterval.containsInterval(bookingInterval)) {
-    return true;
+  const bookingStartHours = bookingStartAt.getHours();
+  const bookingStartMinutes = bookingStartAt.getMinutes();
+  const bookingEndHours = bookingEndAt.getHours();
+  const bookingEndMinutes = bookingEndAt.getMinutes();
+  if (
+    bookingStartHours > openHour ||
+    (bookingStartHours === openHour && bookingStartMinutes >= openMinute)
+  ) {
+    if (
+      bookingEndHours < closeHour ||
+      (bookingEndHours === closeHour && bookingEndMinutes <= closeMinute)
+    ) {
+      return true;
+    }
   }
   return false;
 };

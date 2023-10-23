@@ -17,8 +17,8 @@ message GetAreaByIdResponse {
 }
 
 message SportDetail {
-  string name = 1;
-  string openTime = 2;
-  string closeTime = 3;
-  string price = 4;
+  string name = 2;
+  string openTime = 3;
+  string closeTime = 4;
+  string price = 5;
 }

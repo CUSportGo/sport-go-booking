@@ -24,7 +24,6 @@ export class BookingService {
         sportType: booking.sportType,
         areaId: booking.areaID,
       });
-
       if (
         !commonUtils.checkValidBookingTime(
           booking.startAt,

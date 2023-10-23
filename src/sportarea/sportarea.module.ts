@@ -19,6 +19,7 @@ import { SportareaController } from './sportarea.controller';
     ]),
   ],
   providers: [SportareaService],
+  exports: [SportareaService],
   controllers: [SportareaController],
 })
 export class SportareaModule {}

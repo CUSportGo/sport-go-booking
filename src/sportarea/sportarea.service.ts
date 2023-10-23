@@ -9,20 +9,16 @@ import {
 } from './sportarea.pb';
 
 @Injectable()
-export class SportareaService implements OnModuleInit {
+export class SportareaService {
   private sportareaClient: SportareaServiceClient;
   private readonly logger = new Logger(SportareaService.name);
 
-  constructor(@Inject('SPORTAREA_PACKAGE') private client: ClientGrpc) {}
-
-  onModuleInit() {
-    console.log('init sport area service');
+  constructor(@Inject('SPORTAREA_PACKAGE') private client: ClientGrpc) {
     this.sportareaClient =
       this.client.getService<SportareaServiceClient>('SportareaService');
   }
 
   async getAreaById(request: GetAreaByIdRequest): Promise<GetAreaByIdResponse> {
-    console.log(this.sportareaClient);
     return await firstValueFrom(
       this.sportareaClient.getAreaById(request).pipe(
         catchError((error) => {
