@@ -117,7 +117,12 @@ export class BookingService {
         areaId: request.areaId,
       });
 
-      const allTimeSlot = await this.createAvailableTimeSlots(new Date(area.data.openTime), new Date(area.data.closeTime), 60)
+      const allTimeSlot = await this.createAvailableTimeSlots(
+        new Date(`${request.bookingDate.split('T')[0]}T${area.data.openTime}`),
+        new Date(`${request.bookingDate.split('T')[0]}T${area.data.closeTime}`),
+        60
+      );
+
       const listTime: string[] = [];
 
       for (const timeSlot of allTimeSlot) {
