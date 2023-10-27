@@ -68,4 +68,25 @@ export class BookingService {
       throw error;
     }
   }
+
+  public async cancelBooking(bookingId: string) {
+    try {
+      const booking = await this.bookingRepo.getBookingById(bookingId);
+      if (!booking) {
+        throw new InternalServerErrorException('Booking not found');
+      }
+      const updatedBooking = await this.bookingRepo.updateBooking(bookingId, {
+        ...booking,
+        status: BookingStatus.Cancel,
+      });
+      console.log(updatedBooking);
+      // notify back to user
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof HttpException)) {
+        throw new InternalServerErrorException('Internal server error');
+      }
+      throw error;
+    }
+  }
 }
