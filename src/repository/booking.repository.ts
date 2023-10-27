@@ -41,4 +41,24 @@ export class BookingRepository {
       },
     });
   }
+  
+  async getBookingById(id: string): Promise<Booking> {
+    return await this.db.booking.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async updateBooking(
+    id: string,
+    data: Prisma.BookingUpdateInput,
+  ): Promise<Booking> {
+    return await this.db.booking.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
 }
