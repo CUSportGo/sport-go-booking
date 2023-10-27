@@ -20,15 +20,8 @@ model Booking {
   userID      String
   startAt     DateTime
   endAt       DateTime
-  status      BookingStatus
+  isCancel    Boolean
 
   @@index([sportAreaID, sportType, areaID, startAt])
   @@index([userID])
-}
-
-enum BookingStatus {
-  Pending 
-  Accept
-  Decline
-  Cancel
 }
