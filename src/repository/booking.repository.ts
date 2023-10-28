@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BookingRepository {
-  constructor(private db: PrismaService) {}
+  constructor(private db: PrismaService) { }
 
   async create(createdBooking: Prisma.BookingCreateInput): Promise<Booking> {
     return await this.db.booking.create({
@@ -60,5 +60,13 @@ export class BookingRepository {
       },
       data,
     });
+  }
+
+  async getBookingByUserId(userID: string): Promise<Booking[]> {
+    return await this.db.booking.findMany({
+      where: {
+        userID: userID,
+      }
+    })
   }
 }

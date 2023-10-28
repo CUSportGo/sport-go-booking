@@ -9,14 +9,15 @@ import { BookingInfo, CancelBookingInfo } from './booking.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
-import { BookingStatus } from '@prisma/client';
+import { Booking, BookingStatus } from '@prisma/client';
+import { BookingData, BookingStatus as BookingStatusProto } from './booking.pb';
 
 @Injectable()
 export class BookingService {
   constructor(
     private bookingRepo: BookingRepository,
     private sportareaService: SportareaService,
-  ) {}
+  ) { }
 
   public async createBooking(booking: BookingInfo) {
     try {
@@ -85,6 +86,39 @@ export class BookingService {
       });
       console.log(updatedBooking);
       // notify back to user
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof HttpException)) {
+        throw new InternalServerErrorException('Internal server error');
+      }
+      throw error;
+    }
+  }
+
+  public async viewBookingHistory(userId: string): Promise<BookingData> {
+    try {
+      const bookings = await this.bookingRepo.getBookingByUserId(userId)
+      const bookingsGRPCCompatible = bookings.map((booking) => {
+        return {
+          ...booking,
+          createdAt: booking.createdAt.toLocaleString(),
+          updatedAt: booking.updatedAt.toLocaleString(),
+          endAt: booking.endAt.toLocaleString(),
+          startAt: booking.startAt.toLocaleString(),
+          status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto]
+        }
+      })
+      const pendings = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Pending')
+      const accepts = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Accept')
+      const declines = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Decline')
+      const cancels = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Cancel')
+
+      return {
+        pending: pendings,
+        accept: accepts,
+        decline: declines,
+        cancel: cancels,
+      }
     } catch (error) {
       console.log(error);
       if (!(error instanceof HttpException)) {

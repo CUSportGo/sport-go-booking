@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package booking;
+
+service BookingService {
+  rpc ViewBookingHistory(ViewBookingHistoryRequest) returns (ViewBookingHistoryResponse) {}
+}
+
+message ViewBookingHistoryRequest {
+    string userId = 1;
+}
+
+message ViewBookingHistoryResponse {
+    BookingData data = 1;
+}
+
+message BookingData {
+    repeated BookingTransaction pending = 1;
+    repeated BookingTransaction accept = 2;
+    repeated BookingTransaction decline = 3;
+    repeated BookingTransaction cancel = 4;
+}
+
+message BookingTransaction {
+    string id = 1;
+    string createdAt = 2;
+    string updatedAt = 3;
+    string sportAreaID = 4;
+    string sportType = 5;
+    string areaID = 6;
+    string userID = 7;
+    string startAt = 8;
+    string endAt = 9;
+    BookingStatus status = 10;
+}
+
+enum BookingStatus {
+    Pending = 0;
+    Accept = 1;
+    Decline = 2;
+    Cancel = 3;
+}
