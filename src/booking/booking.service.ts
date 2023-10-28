@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { BookingRepository } from '../repository/booking.repository';
-import { BookingInfo } from './booking.dto';
+import { BookingInfo, CancelBookingInfo } from './booking.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
@@ -70,13 +70,16 @@ export class BookingService {
     }
   }
 
-  public async cancelBooking(bookingId: string) {
-    try {
-      const booking = await this.bookingRepo.getBookingById(bookingId);
+  public async cancelBooking(cancelInfo: CancelBookingInfo) {
+    try {      
+      const booking = await this.bookingRepo.getBookingById(cancelInfo.bookingID);
       if (!booking) {
         throw new InternalServerErrorException('Booking not found');
       }
-      const updatedBooking = await this.bookingRepo.updateBooking(bookingId, {
+      if (booking.userID !== cancelInfo.userID) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+      const updatedBooking = await this.bookingRepo.updateBooking(cancelInfo.bookingID, {
         ...booking,
         status: BookingStatus.Cancel,
       });
