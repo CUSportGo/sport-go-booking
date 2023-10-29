@@ -10,7 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
 import { GetAvailableBookingRequest, GetAvailableBookingResponse, TimeSlot } from './booking.pb';
-
+import { RpcException } from '@nestjs/microservices';
+import { status } from '@grpc/grpc-js';
 
 
 @Injectable()
@@ -76,19 +77,22 @@ export class BookingService {
     startTime: Date,
     endTime: Date,
     timeIntervalInMinutes: number
-  ): Promise<string[]> {
+  ): Promise<TimeSlot[]> {
     try {
-      const timeSlots: string[] = [];
+      const timeSlots: TimeSlot[] = [];
       let currentTime = new Date(startTime);
 
       while (currentTime < endTime) {
-        const slotStartTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const slotStartTime = currentTime.toISOString();
         currentTime.setMinutes(currentTime.getMinutes() + timeIntervalInMinutes);
-        const slotEndTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const slotEndTime = currentTime.toISOString();
 
-        timeSlots.push(`${slotStartTime}-${slotEndTime}`);
+        timeSlots.push({
+          startTime: slotStartTime,
+          endTime: slotEndTime
+        });
       }
-      console.log(timeSlots);
+      // console.log(timeSlots);
       return timeSlots;
     } catch (error) {
       console.log(error);
@@ -99,15 +103,11 @@ export class BookingService {
     }
   }
 
-  convertTimeToProto = (timeList: string[]): TimeSlot[] => {
-    return timeList.map(timeSlot => {
-      const [startTime, endTime] = timeSlot.split('-');
-      return {
-        startTime,
-        endTime,
-      };
-    });
+  private isValidDateFormat(input: string): boolean {
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+    return dateFormatRegex.test(input);
   }
+
 
   async GetAvailableBooking(request: GetAvailableBookingRequest): Promise<GetAvailableBookingResponse> {
     try {
@@ -117,16 +117,21 @@ export class BookingService {
         areaId: request.areaId,
       });
 
-      const allTimeSlot = await this.createAvailableTimeSlots(
-        new Date(`${request.bookingDate.split('T')[0]}T${area.data.openTime}`),
-        new Date(`${request.bookingDate.split('T')[0]}T${area.data.closeTime}`),
+      if (!this.isValidDateFormat(request.bookingDate)) {
+        throw new RpcException({ code: status.INVALID_ARGUMENT, message: "Invalid date format. Please use 'yyyy-mm-dd' format." });
+      }
+
+      let allTimeSlot = await this.createAvailableTimeSlots(
+        new Date(`${request.bookingDate}T${area.data.openTime}`),
+        new Date(`${request.bookingDate}T${area.data.closeTime}`),
         60
       );
 
-      const listTime: string[] = [];
+      const listAvailableTime: TimeSlot[] = [];
 
       for (const timeSlot of allTimeSlot) {
-        const [startTime, endTime] = timeSlot.split('-');
+        const startTime = timeSlot.startTime;
+        const endTime = timeSlot.endTime;
         const bookingList = await this.bookingRepo.checkAvailability(
           request.sportAreaId,
           request.sportType,
@@ -135,16 +140,21 @@ export class BookingService {
           endTime
         );
         if (bookingList.length === 0) {
-          listTime.push(timeSlot);
+          listAvailableTime.push({
+            startTime: new Date(startTime).toLocaleString([], { hour12: false }),
+            endTime: new Date(endTime).toLocaleString([], { hour12: false }),
+          });
         }
       }
-      const listAvailableTime: TimeSlot[] = this.convertTimeToProto(listTime);
       return { listAvailableTime };
 
     } catch (error) {
       console.log(error);
-      if (!(error instanceof HttpException)) {
-        throw new InternalServerErrorException('Internal server error');
+      if (!(error instanceof RpcException)) {
+        throw new RpcException({
+          code: status.INTERNAL,
+          message: 'Internal server error',
+        });
       }
       throw error;
     }
