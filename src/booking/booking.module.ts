@@ -11,4 +11,4 @@ import { BookingService } from './booking.service';
   controllers: [BookingController],
   providers: [BookingService, BookingRepository, PrismaService],
 })
-export class BookingModule {}
+export class BookingModule { }
