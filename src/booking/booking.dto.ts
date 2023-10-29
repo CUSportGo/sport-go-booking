@@ -6,3 +6,8 @@ export interface BookingInfo {
   startAt: string;
   endAt: string;
 }
+
+export interface CancelBookingInfo {
+  bookingID: string;
+  userID: string;
+}
