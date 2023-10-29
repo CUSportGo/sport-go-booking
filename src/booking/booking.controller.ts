@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Ctx, GrpcMethod, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
-import { CANCEL_BOOKING_PATTERN, CREATE_BOOKING_PATTERN, GET_BOOKING_HISTORY } from '../constant/booking.constant';
+import { CANCEL_BOOKING_PATTERN, CREATE_BOOKING_PATTERN } from '../constant/booking.constant';
 import { BookingInfo, CancelBookingInfo } from './booking.dto';
 import { BookingService } from './booking.service';
 import { ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
@@ -16,7 +16,7 @@ export class BookingController {
 
   @GrpcMethod('BookingService', 'ViewBookingHistory')
   public async viewBookingHistory(request: ViewBookingHistoryRequest): Promise<ViewBookingHistoryResponse> {
-    return { data: await this.bookingService.viewBookingHistory(request.userId) }
+    return await this.bookingService.viewBookingHistory(request)
   }
 
   @MessagePattern(CANCEL_BOOKING_PATTERN)

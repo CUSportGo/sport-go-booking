@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
 import { Booking, BookingStatus } from '@prisma/client';
-import { BookingData, BookingStatus as BookingStatusProto } from './booking.pb';
+import { BookingData, BookingStatus as BookingStatusProto, ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
 
 @Injectable()
 export class BookingService {
@@ -72,7 +72,7 @@ export class BookingService {
   }
 
   public async cancelBooking(cancelInfo: CancelBookingInfo) {
-    try {      
+    try {
       const booking = await this.bookingRepo.getBookingById(cancelInfo.bookingID);
       if (!booking) {
         throw new InternalServerErrorException('Booking not found');
@@ -95,8 +95,9 @@ export class BookingService {
     }
   }
 
-  public async viewBookingHistory(userId: string): Promise<BookingData> {
+  public async viewBookingHistory(request: ViewBookingHistoryRequest): Promise<ViewBookingHistoryResponse> {
     try {
+      const userId = request.userId
       const bookings = await this.bookingRepo.getBookingByUserId(userId)
       const bookingsGRPCCompatible = bookings.map((booking) => {
         return {
@@ -114,10 +115,12 @@ export class BookingService {
       const cancels = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Cancel')
 
       return {
-        pending: pendings,
-        accept: accepts,
-        decline: declines,
-        cancel: cancels,
+        data: {
+          pending: pendings,
+          accept: accepts,
+          decline: declines,
+          cancel: cancels,
+        }
       }
     } catch (error) {
       console.log(error);
