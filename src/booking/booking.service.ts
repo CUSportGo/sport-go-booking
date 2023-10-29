@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { BookingRepository } from '../repository/booking.repository';
-import { BookingInfo } from './booking.dto';
+import { BookingInfo, CancelBookingInfo } from './booking.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
@@ -13,6 +13,7 @@ import { GetAvailableBookingRequest, GetAvailableBookingResponse, TimeSlot } fro
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 
+import { BookingStatus } from '@prisma/client';
 
 @Injectable()
 export class BookingService {
@@ -59,10 +60,34 @@ export class BookingService {
         userID: booking.userID,
         startAt: booking.startAt,
         endAt: booking.endAt,
-        isCancel: false,
+        status: BookingStatus.Pending,
       };
       const newBooking = await this.bookingRepo.create(createdBooking);
       console.log(newBooking);
+      // notify back to user
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof HttpException)) {
+        throw new InternalServerErrorException('Internal server error');
+      }
+      throw error;
+    }
+  }
+
+  public async cancelBooking(cancelInfo: CancelBookingInfo) {
+    try {
+      const booking = await this.bookingRepo.getBookingById(cancelInfo.bookingID);
+      if (!booking) {
+        throw new InternalServerErrorException('Booking not found');
+      }
+      if (booking.userID !== cancelInfo.userID) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+      const updatedBooking = await this.bookingRepo.updateBooking(cancelInfo.bookingID, {
+        ...booking,
+        status: BookingStatus.Cancel,
+      });
+      console.log(updatedBooking);
       // notify back to user
     } catch (error) {
       console.log(error);
