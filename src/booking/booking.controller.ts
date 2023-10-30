@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod, MessagePattern } from '@nestjs/microservices';
-import { CANCEL_BOOKING_PATTERN, CREATE_BOOKING_PATTERN } from '../constant/booking.constant';
-import { BookingInfo, CancelBookingInfo } from './booking.dto';
+import { CANCEL_BOOKING_PATTERN, CONFIRM_BOOKING_PATTERN, CREATE_BOOKING_PATTERN } from '../constant/booking.constant';
+import { BookingInfo, CancelBookingInfo, ConfirmBookingInfo } from './booking.dto';
 import { BookingService } from './booking.service';
 import { GetAvailableBookingRequest, GetAvailableBookingResponse } from './booking.pb';
 
@@ -19,6 +19,11 @@ export class BookingController {
   @MessagePattern(CANCEL_BOOKING_PATTERN)
   public async cancelBooking(cancelInfo: CancelBookingInfo) {
     return this.bookingService.cancelBooking(cancelInfo);
+  }
+
+  @MessagePattern(CONFIRM_BOOKING_PATTERN)
+  public async confirmBooking(confirmInfo: ConfirmBookingInfo) {
+    return this.bookingService.confirmBooking(confirmInfo);
   }
 
   @GrpcMethod("BookingService", "GetAvailableBooking")
