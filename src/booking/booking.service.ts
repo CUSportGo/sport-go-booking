@@ -104,9 +104,10 @@ export class BookingService {
       if (!booking) {
         throw new InternalServerErrorException('Booking not found');
       }
-      if (booking.userID !== confirmInfo.userID) {
+      if (booking.userID !== confirmInfo.userID || booking.status == BookingStatus.Cancel || booking.status == BookingStatus.Decline) {
         throw new ForbiddenException('Forbidden permission');
       }
+
       const updatedBooking = await this.bookingRepo.updateBooking(confirmInfo.bookingID, {
         ...booking,
         status: BookingStatus.Accept,
