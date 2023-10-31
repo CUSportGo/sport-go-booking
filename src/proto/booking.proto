@@ -23,15 +23,14 @@ message BookingData {
 
 message BookingTransaction {
     string id = 1;
-    string createdAt = 2;
-    string updatedAt = 3;
-    string sportAreaID = 4;
-    string sportType = 5;
-    string areaID = 6;
-    string userID = 7;
-    string startAt = 8;
-    string endAt = 9;
-    BookingStatus status = 10;
+    string sportAreaID = 2;
+    string sportType = 3;
+    string areaID = 4;
+    string userID = 5;
+    string startAt = 6;
+    string endAt = 7;
+    BookingStatus status = 8;
+    SportDetail sportAreaData = 9;
 }
 
 enum BookingStatus {
@@ -40,3 +39,11 @@ enum BookingStatus {
     Decline = 2;
     Cancel = 3;
 }
+
+
+message SportDetail {
+    string name = 2;
+    string openTime = 3;
+    string closeTime = 4;
+    string price = 5;
+  }

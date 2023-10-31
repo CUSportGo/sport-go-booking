@@ -29,8 +29,6 @@ export interface BookingData {
 
 export interface BookingTransaction {
   id: string;
-  createdAt: string;
-  updatedAt: string;
   sportAreaID: string;
   sportType: string;
   areaID: string;
@@ -38,6 +36,14 @@ export interface BookingTransaction {
   startAt: string;
   endAt: string;
   status: BookingStatus;
+  sportAreaData: SportDetail | undefined;
+}
+
+export interface SportDetail {
+  name: string;
+  openTime: string;
+  closeTime: string;
+  price: string;
 }
 
 export const BOOKING_PACKAGE_NAME = "booking";

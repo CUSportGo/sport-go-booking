@@ -3,10 +3,10 @@ import { Ctx, GrpcMethod, MessagePattern, Payload, RmqContext } from '@nestjs/mi
 import { CANCEL_BOOKING_PATTERN, CREATE_BOOKING_PATTERN } from '../constant/booking.constant';
 import { BookingInfo, CancelBookingInfo } from './booking.dto';
 import { BookingService } from './booking.service';
-import { ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
+import { BookingServiceController, ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
 
 @Controller('booking')
-export class BookingController {
+export class BookingController implements BookingServiceController {
   constructor(private bookingService: BookingService) { }
 
   @MessagePattern(CREATE_BOOKING_PATTERN)

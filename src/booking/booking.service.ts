@@ -94,21 +94,26 @@ export class BookingService {
       throw error;
     }
   }
-
+  // remove crate at updated at
   public async viewBookingHistory(request: ViewBookingHistoryRequest): Promise<ViewBookingHistoryResponse> {
     try {
       const userId = request.userId
       const bookings = await this.bookingRepo.getBookingByUserId(userId)
-      const bookingsGRPCCompatible = bookings.map((booking) => {
+      const bookingsGRPCCompatible = await Promise.all(bookings.map(async (booking) => {
+        const { createdAt, updatedAt, ...details } = booking
+        const sportDetail = await this.sportareaService.getAreaById({
+          sportAreaId: booking.sportAreaID, sportType: booking.sportType, areaId: booking.areaID
+        })
         return {
-          ...booking,
-          createdAt: booking.createdAt.toLocaleString(),
-          updatedAt: booking.updatedAt.toLocaleString(),
+          ...details,
           endAt: booking.endAt.toLocaleString(),
           startAt: booking.startAt.toLocaleString(),
-          status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto]
+          status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto],
+          sportAreaData: sportDetail.data,
         }
-      })
+      }))
+
+
       const pendings = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Pending')
       const accepts = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Accept')
       const declines = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Decline')
