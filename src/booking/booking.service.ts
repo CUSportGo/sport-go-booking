@@ -3,6 +3,7 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { BookingRepository } from '../repository/booking.repository';
 import { BookingInfo, CancelBookingInfo, ConfirmBookingInfo } from './booking.dto';
@@ -14,12 +15,14 @@ import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 
 import { BookingStatus } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class BookingService {
   constructor(
     private bookingRepo: BookingRepository,
     private sportareaService: SportareaService,
+    private userService: UserService
   ) { }
 
   public async createBooking(booking: BookingInfo) {
@@ -102,9 +105,14 @@ export class BookingService {
     try {
       const booking = await this.bookingRepo.getBookingById(confirmInfo.bookingID);
       if (!booking) {
-        throw new InternalServerErrorException('Booking not found');
+        throw new NotFoundException('Booking not found');
       }
-      if (booking.userID !== confirmInfo.userID || booking.status == BookingStatus.Cancel || booking.status == BookingStatus.Decline) {
+      if (booking.status != BookingStatus.Pending) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+
+      const sportAreaOwner = await this.userService.getUserSportArea({ sportAreaId: booking.sportAreaID })
+      if (sportAreaOwner.userId != confirmInfo.userID) {
         throw new ForbiddenException('Forbidden permission');
       }
 
