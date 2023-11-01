@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { BookingModule } from './booking/booking.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SportareaModule } from './sportarea/sportarea.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SportareaModule } from './sportarea/sportarea.module';
     BookingModule,
     SportareaModule,
     PrismaModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
