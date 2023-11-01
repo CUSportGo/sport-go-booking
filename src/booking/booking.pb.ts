@@ -36,14 +36,14 @@ export interface BookingTransaction {
   startAt: string;
   endAt: string;
   status: BookingStatus;
-  sportAreaData: SportDetail | undefined;
+  sportAreaData: SportArea | undefined;
 }
 
-export interface SportDetail {
+export interface SportArea {
+  id: string;
   name: string;
-  openTime: string;
-  closeTime: string;
-  price: string;
+  imageURL: string;
+  description: string;
 }
 
 export const BOOKING_PACKAGE_NAME = "booking";

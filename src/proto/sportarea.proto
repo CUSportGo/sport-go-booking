@@ -4,6 +4,7 @@ package sportarea;
 
 service SportareaService {
   rpc getAreaById(GetAreaByIdRequest) returns (GetAreaByIdResponse) {}
+  rpc getSportAreaById(GetSportAreaByIdRequest) returns (GetSportAreaByIdResponse) {}
 }
 
 message GetAreaByIdRequest {
@@ -22,3 +23,31 @@ message SportDetail {
   string closeTime = 4;
   string price = 5;
 }
+
+
+message GetSportAreaByIdRequest {
+  string id = 1;
+}
+
+message GetSportAreaByIdResponse {
+  SportArea data = 1;
+}
+
+
+message SportArea {
+  string id = 1;
+  string name = 2;
+  string imageURL = 3;
+  repeated string sportType = 4;
+  string location = 5;
+  string description = 6;
+  float distance = 7;
+  string price = 8;
+  repeated SportList sportList = 9;
+}
+
+message SportList {
+  string sportType = 1;
+  repeated SportDetail area = 2;
+}
+

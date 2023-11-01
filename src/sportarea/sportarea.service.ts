@@ -5,6 +5,8 @@ import { exceptionHandler } from '../common/exception-handler';
 import {
   GetAreaByIdRequest,
   GetAreaByIdResponse,
+  GetSportAreaByIdRequest,
+  GetSportAreaByIdResponse,
   SportareaServiceClient,
 } from './sportarea.pb';
 
@@ -21,6 +23,18 @@ export class SportareaService {
   async getAreaById(request: GetAreaByIdRequest): Promise<GetAreaByIdResponse> {
     return await firstValueFrom(
       this.sportareaClient.getAreaById(request).pipe(
+        catchError((error) => {
+          this.logger.error(error);
+          const exception = exceptionHandler.getExceptionFromGrpc(error);
+          throw exception;
+        }),
+      ),
+    );
+  }
+
+  async getSportAreaById(request: GetSportAreaByIdRequest): Promise<GetSportAreaByIdResponse> {
+    return await firstValueFrom(
+      this.sportareaClient.getSportAreaById(request).pipe(
         catchError((error) => {
           this.logger.error(error);
           const exception = exceptionHandler.getExceptionFromGrpc(error);

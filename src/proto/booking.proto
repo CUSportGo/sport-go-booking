@@ -30,7 +30,7 @@ message BookingTransaction {
     string startAt = 6;
     string endAt = 7;
     BookingStatus status = 8;
-    SportDetail sportAreaData = 9;
+    SportArea sportAreaData = 9;
 }
 
 enum BookingStatus {
@@ -41,9 +41,10 @@ enum BookingStatus {
 }
 
 
-message SportDetail {
+message SportArea {
+    string id = 1;
     string name = 2;
-    string openTime = 3;
-    string closeTime = 4;
-    string price = 5;
-  }
+    string imageURL = 3;
+    string description = 4;
+}
+

@@ -101,15 +101,13 @@ export class BookingService {
       const bookings = await this.bookingRepo.getBookingByUserId(userId)
       const bookingsGRPCCompatible = await Promise.all(bookings.map(async (booking) => {
         const { createdAt, updatedAt, ...details } = booking
-        const sportDetail = await this.sportareaService.getAreaById({
-          sportAreaId: booking.sportAreaID, sportType: booking.sportType, areaId: booking.areaID
-        })
+        const sportAreaDetail = await this.sportareaService.getSportAreaById({ id: booking.sportAreaID })
         return {
           ...details,
           endAt: booking.endAt.toLocaleString(),
           startAt: booking.startAt.toLocaleString(),
           status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto],
-          sportAreaData: sportDetail.data,
+          sportAreaData: sportAreaDetail.data,
         }
       }))
 

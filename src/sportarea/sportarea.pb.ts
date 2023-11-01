@@ -21,21 +21,52 @@ export interface SportDetail {
   price: string;
 }
 
+export interface GetSportAreaByIdRequest {
+  id: string;
+}
+
+export interface GetSportAreaByIdResponse {
+  data: SportArea | undefined;
+}
+
+export interface SportArea {
+  id: string;
+  name: string;
+  imageURL: string;
+  sportType: string[];
+  location: string;
+  description: string;
+  distance: number;
+  price: string;
+  sportList: SportList[];
+}
+
+export interface SportList {
+  sportType: string;
+  area: SportDetail[];
+}
+
 export const SPORTAREA_PACKAGE_NAME = "sportarea";
 
 export interface SportareaServiceClient {
   getAreaById(request: GetAreaByIdRequest): Observable<GetAreaByIdResponse>;
+
+  getSportAreaById(request: GetSportAreaByIdRequest): Observable<GetSportAreaByIdResponse>;
 }
 
 export interface SportareaServiceController {
   getAreaById(
     request: GetAreaByIdRequest,
   ): Promise<GetAreaByIdResponse> | Observable<GetAreaByIdResponse> | GetAreaByIdResponse;
+
+  getSportAreaById(
+    request: GetSportAreaByIdRequest,
+  ): Promise<GetSportAreaByIdResponse> | Observable<GetSportAreaByIdResponse> | GetSportAreaByIdResponse;
 }
 
 export function SportareaServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getAreaById"];
+    const grpcMethods: string[] = ["getAreaById", "getSportAreaById"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("SportareaService", method)(constructor.prototype[method], method, descriptor);
