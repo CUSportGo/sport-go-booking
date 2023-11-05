@@ -41,7 +41,7 @@ export class BookingRepository {
       },
     });
   }
-  
+
   async getBookingById(id: string): Promise<Booking> {
     return await this.db.booking.findUnique({
       where: {

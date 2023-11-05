@@ -3,8 +3,26 @@ syntax = "proto3";
 package booking;
 
 service BookingService {
+  rpc GetAvailableBooking(GetAvailableBookingRequest) returns (GetAvailableBookingResponse) {}
   rpc ViewBookingHistory(ViewBookingHistoryRequest) returns (ViewBookingHistoryResponse) {}
 }
+
+message TimeSlot {
+  string startTime = 1;
+  string endTime = 2;
+}
+
+message GetAvailableBookingRequest{
+  string sportAreaId = 1;
+  string sportType = 2;
+  string areaId = 3;
+  string bookingDate = 4;
+}
+
+message GetAvailableBookingResponse{
+  repeated TimeSlot listAvailableTime = 1 ;
+}
+
 
 message ViewBookingHistoryRequest {
     string userId = 1;

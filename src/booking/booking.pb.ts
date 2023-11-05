@@ -12,6 +12,22 @@ export enum BookingStatus {
   UNRECOGNIZED = -1,
 }
 
+export interface TimeSlot {
+  startTime: string;
+  endTime: string;
+}
+
+export interface GetAvailableBookingRequest {
+  sportAreaId: string;
+  sportType: string;
+  areaId: string;
+  bookingDate: string;
+}
+
+export interface GetAvailableBookingResponse {
+  listAvailableTime: TimeSlot[];
+}
+
 export interface ViewBookingHistoryRequest {
   userId: string;
 }
@@ -49,10 +65,16 @@ export interface SportArea {
 export const BOOKING_PACKAGE_NAME = "booking";
 
 export interface BookingServiceClient {
+  getAvailableBooking(request: GetAvailableBookingRequest): Observable<GetAvailableBookingResponse>;
+
   viewBookingHistory(request: ViewBookingHistoryRequest): Observable<ViewBookingHistoryResponse>;
 }
 
 export interface BookingServiceController {
+  getAvailableBooking(
+    request: GetAvailableBookingRequest,
+  ): Promise<GetAvailableBookingResponse> | Observable<GetAvailableBookingResponse> | GetAvailableBookingResponse;
+
   viewBookingHistory(
     request: ViewBookingHistoryRequest,
   ): Promise<ViewBookingHistoryResponse> | Observable<ViewBookingHistoryResponse> | ViewBookingHistoryResponse;
@@ -60,7 +82,7 @@ export interface BookingServiceController {
 
 export function BookingServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["viewBookingHistory"];
+    const grpcMethods: string[] = ["getAvailableBooking", "viewBookingHistory"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("BookingService", method)(constructor.prototype[method], method, descriptor);

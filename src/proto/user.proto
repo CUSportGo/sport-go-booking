@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc GetUserSportArea(GetUserSportAreaRequest) returns (GetUserSportAreaResponse) {}
+}
+
+message GetUserSportAreaRequest {
+  string sportAreaId = 1;
+}
+
+message GetUserSportAreaResponse {
+  string userId = 1;
+  string sportAreaId =2;
+}
