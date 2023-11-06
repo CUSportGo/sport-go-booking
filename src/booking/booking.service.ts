@@ -14,8 +14,9 @@ import { GetAvailableBookingRequest, GetAvailableBookingResponse, TimeSlot } fro
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 
-import { BookingStatus } from '@prisma/client';
+import { Booking, BookingStatus } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
+import { BookingData, BookingStatus as BookingStatusProto, ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
 
 @Injectable()
 export class BookingService {
@@ -213,6 +214,45 @@ export class BookingService {
           code: status.INTERNAL,
           message: 'Internal server error',
         });
+      }
+      throw error;
+    }
+  }
+  // remove crate at updated at
+  public async viewBookingHistory(request: ViewBookingHistoryRequest): Promise<ViewBookingHistoryResponse> {
+    try {
+      const userId = request.userId
+      const bookings = await this.bookingRepo.getBookingByUserId(userId)
+      const bookingsGRPCCompatible = await Promise.all(bookings.map(async (booking) => {
+        const { createdAt, updatedAt, ...details } = booking
+        const sportAreaDetail = await this.sportareaService.getSportAreaById({ id: booking.sportAreaID })
+        return {
+          ...details,
+          endAt: booking.endAt.toLocaleString(),
+          startAt: booking.startAt.toLocaleString(),
+          status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto],
+          sportAreaData: sportAreaDetail.data,
+        }
+      }))
+
+
+      const pendings = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Pending')
+      const accepts = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Accept')
+      const declines = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Decline')
+      const cancels = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Cancel')
+
+      return {
+        data: {
+          pending: pendings,
+          accept: accepts,
+          decline: declines,
+          cancel: cancels,
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof HttpException)) {
+        throw new InternalServerErrorException('Internal server error');
       }
       throw error;
     }

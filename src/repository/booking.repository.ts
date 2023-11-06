@@ -61,4 +61,12 @@ export class BookingRepository {
       data,
     });
   }
+
+  async getBookingByUserId(userID: string): Promise<Booking[]> {
+    return await this.db.booking.findMany({
+      where: {
+        userID: userID,
+      }
+    })
+  }
 }

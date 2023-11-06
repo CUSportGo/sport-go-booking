@@ -4,6 +4,7 @@ package booking;
 
 service BookingService {
   rpc GetAvailableBooking(GetAvailableBookingRequest) returns (GetAvailableBookingResponse) {}
+  rpc ViewBookingHistory(ViewBookingHistoryRequest) returns (ViewBookingHistoryResponse) {}
 }
 
 message TimeSlot {
@@ -21,3 +22,47 @@ message GetAvailableBookingRequest{
 message GetAvailableBookingResponse{
   repeated TimeSlot listAvailableTime = 1 ;
 }
+
+
+message ViewBookingHistoryRequest {
+    string userId = 1;
+}
+
+message ViewBookingHistoryResponse {
+    BookingData data = 1;
+}
+
+message BookingData {
+    repeated BookingTransaction pending = 1;
+    repeated BookingTransaction accept = 2;
+    repeated BookingTransaction decline = 3;
+    repeated BookingTransaction cancel = 4;
+}
+
+message BookingTransaction {
+    string id = 1;
+    string sportAreaID = 2;
+    string sportType = 3;
+    string areaID = 4;
+    string userID = 5;
+    string startAt = 6;
+    string endAt = 7;
+    BookingStatus status = 8;
+    SportArea sportAreaData = 9;
+}
+
+enum BookingStatus {
+    Pending = 0;
+    Accept = 1;
+    Decline = 2;
+    Cancel = 3;
+}
+
+
+message SportArea {
+    string id = 1;
+    string name = 2;
+    string imageURL = 3;
+    string description = 4;
+}
+
