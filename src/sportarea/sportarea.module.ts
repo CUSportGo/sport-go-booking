@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { SportareaService } from './sportarea.service';
-import { SportareaController } from './sportarea.controller';
 
 @Module({
   imports: [
@@ -20,6 +19,5 @@ import { SportareaController } from './sportarea.controller';
   ],
   providers: [SportareaService],
   exports: [SportareaService],
-  controllers: [SportareaController],
 })
 export class SportareaModule {}

@@ -6,25 +6,38 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BookingRepository } from '../repository/booking.repository';
-import { BookingInfo, CancelBookingInfo, ConfirmBookingInfo } from './booking.dto';
+import {
+  BookingInfo,
+  CancelBookingInfo,
+  ConfirmBookingInfo,
+} from './booking.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { SportareaService } from '../sportarea/sportarea.service';
 import { commonUtils } from '../utils/common.utils';
-import { GetAvailableBookingRequest, GetAvailableBookingResponse, TimeSlot } from './booking.pb';
+import {
+  GetAvailableBookingRequest,
+  GetAvailableBookingResponse,
+  TimeSlot,
+} from './booking.pb';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 
 import { Booking, BookingStatus } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
-import { BookingData, BookingStatus as BookingStatusProto, ViewBookingHistoryRequest, ViewBookingHistoryResponse } from './booking.pb';
+import { UserService } from '../user/user.service';
+import {
+  BookingData,
+  BookingStatus as BookingStatusProto,
+  ViewBookingHistoryRequest,
+  ViewBookingHistoryResponse,
+} from './booking.pb';
 
 @Injectable()
 export class BookingService {
   constructor(
     private bookingRepo: BookingRepository,
     private sportareaService: SportareaService,
-    private userService: UserService
-  ) { }
+    private userService: UserService,
+  ) {}
 
   public async createBooking(booking: BookingInfo) {
     try {
@@ -80,17 +93,22 @@ export class BookingService {
 
   public async cancelBooking(cancelInfo: CancelBookingInfo) {
     try {
-      const booking = await this.bookingRepo.getBookingById(cancelInfo.bookingID);
+      const booking = await this.bookingRepo.getBookingById(
+        cancelInfo.bookingID,
+      );
       if (!booking) {
         throw new InternalServerErrorException('Booking not found');
       }
       if (booking.userID !== cancelInfo.userID) {
         throw new ForbiddenException('Forbidden permission');
       }
-      const updatedBooking = await this.bookingRepo.updateBooking(cancelInfo.bookingID, {
-        ...booking,
-        status: BookingStatus.Cancel,
-      });
+      const updatedBooking = await this.bookingRepo.updateBooking(
+        cancelInfo.bookingID,
+        {
+          ...booking,
+          status: BookingStatus.Cancel,
+        },
+      );
       console.log(updatedBooking);
       // notify back to user
     } catch (error) {
@@ -104,7 +122,9 @@ export class BookingService {
 
   public async confirmBooking(confirmInfo: ConfirmBookingInfo) {
     try {
-      const booking = await this.bookingRepo.getBookingById(confirmInfo.bookingID);
+      const booking = await this.bookingRepo.getBookingById(
+        confirmInfo.bookingID,
+      );
       if (!booking) {
         throw new NotFoundException('Booking not found');
       }
@@ -112,15 +132,20 @@ export class BookingService {
         throw new ForbiddenException('Forbidden permission');
       }
 
-      const sportAreaOwner = await this.userService.getUserSportArea({ sportAreaId: booking.sportAreaID })
+      const sportAreaOwner = await this.userService.getUserSportArea({
+        sportAreaId: booking.sportAreaID,
+      });
       if (sportAreaOwner.userId != confirmInfo.userID) {
         throw new ForbiddenException('Forbidden permission');
       }
 
-      const updatedBooking = await this.bookingRepo.updateBooking(confirmInfo.bookingID, {
-        ...booking,
-        status: BookingStatus.Accept,
-      });
+      const updatedBooking = await this.bookingRepo.updateBooking(
+        confirmInfo.bookingID,
+        {
+          ...booking,
+          status: BookingStatus.Accept,
+        },
+      );
       console.log(updatedBooking);
       // notify back to user
     } catch (error) {
@@ -135,7 +160,7 @@ export class BookingService {
   async createAvailableTimeSlots(
     startTime: Date,
     endTime: Date,
-    timeIntervalInMinutes: number
+    timeIntervalInMinutes: number,
   ): Promise<TimeSlot[]> {
     try {
       const timeSlots: TimeSlot[] = [];
@@ -143,12 +168,14 @@ export class BookingService {
 
       while (currentTime < endTime) {
         const slotStartTime = currentTime.toISOString();
-        currentTime.setMinutes(currentTime.getMinutes() + timeIntervalInMinutes);
+        currentTime.setMinutes(
+          currentTime.getMinutes() + timeIntervalInMinutes,
+        );
         const slotEndTime = currentTime.toISOString();
 
         timeSlots.push({
           startTime: slotStartTime,
-          endTime: slotEndTime
+          endTime: slotEndTime,
         });
       }
       // console.log(timeSlots);
@@ -167,8 +194,9 @@ export class BookingService {
     return dateFormatRegex.test(input);
   }
 
-
-  async GetAvailableBooking(request: GetAvailableBookingRequest): Promise<GetAvailableBookingResponse> {
+  async GetAvailableBooking(
+    request: GetAvailableBookingRequest,
+  ): Promise<GetAvailableBookingResponse> {
     try {
       const area = await this.sportareaService.getAreaById({
         sportAreaId: request.sportAreaId,
@@ -177,13 +205,16 @@ export class BookingService {
       });
 
       if (!this.isValidDateFormat(request.bookingDate)) {
-        throw new RpcException({ code: status.INVALID_ARGUMENT, message: "Invalid date format. Please use 'yyyy-mm-dd' format." });
+        throw new RpcException({
+          code: status.INVALID_ARGUMENT,
+          message: "Invalid date format. Please use 'yyyy-mm-dd' format.",
+        });
       }
 
       let allTimeSlot = await this.createAvailableTimeSlots(
         new Date(`${request.bookingDate}T${area.data.openTime}`),
         new Date(`${request.bookingDate}T${area.data.closeTime}`),
-        60
+        60,
       );
 
       const listAvailableTime: TimeSlot[] = [];
@@ -196,17 +227,18 @@ export class BookingService {
           request.sportType,
           request.areaId,
           startTime,
-          endTime
+          endTime,
         );
         if (bookingList.length === 0) {
           listAvailableTime.push({
-            startTime: new Date(startTime).toLocaleString([], { hour12: false }),
+            startTime: new Date(startTime).toLocaleString([], {
+              hour12: false,
+            }),
             endTime: new Date(endTime).toLocaleString([], { hour12: false }),
           });
         }
       }
       return { listAvailableTime };
-
     } catch (error) {
       console.log(error);
       if (!(error instanceof RpcException)) {
@@ -219,27 +251,43 @@ export class BookingService {
     }
   }
   // remove crate at updated at
-  public async viewBookingHistory(request: ViewBookingHistoryRequest): Promise<ViewBookingHistoryResponse> {
+  public async viewBookingHistory(
+    request: ViewBookingHistoryRequest,
+  ): Promise<ViewBookingHistoryResponse> {
     try {
-      const userId = request.userId
-      const bookings = await this.bookingRepo.getBookingByUserId(userId)
-      const bookingsGRPCCompatible = await Promise.all(bookings.map(async (booking) => {
-        const { createdAt, updatedAt, ...details } = booking
-        const sportAreaDetail = await this.sportareaService.getSportAreaById({ id: booking.sportAreaID })
-        return {
-          ...details,
-          endAt: booking.endAt.toLocaleString(),
-          startAt: booking.startAt.toLocaleString(),
-          status: BookingStatusProto[booking.status as keyof typeof BookingStatusProto],
-          sportAreaData: sportAreaDetail.data,
-        }
-      }))
+      const userId = request.userId;
+      const bookings = await this.bookingRepo.getBookingByUserId(userId);
+      const bookingsGRPCCompatible = await Promise.all(
+        bookings.map(async (booking) => {
+          const { createdAt, updatedAt, ...details } = booking;
+          const sportAreaDetail = await this.sportareaService.getSportAreaById({
+            id: booking.sportAreaID,
+          });
+          return {
+            ...details,
+            endAt: booking.endAt.toLocaleString(),
+            startAt: booking.startAt.toLocaleString(),
+            status:
+              BookingStatusProto[
+                booking.status as keyof typeof BookingStatusProto
+              ],
+            sportAreaData: sportAreaDetail.data,
+          };
+        }),
+      );
 
-
-      const pendings = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Pending')
-      const accepts = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Accept')
-      const declines = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Decline')
-      const cancels = bookingsGRPCCompatible.filter((booking) => BookingStatusProto[booking.status] === 'Cancel')
+      const pendings = bookingsGRPCCompatible.filter(
+        (booking) => BookingStatusProto[booking.status] === 'Pending',
+      );
+      const accepts = bookingsGRPCCompatible.filter(
+        (booking) => BookingStatusProto[booking.status] === 'Accept',
+      );
+      const declines = bookingsGRPCCompatible.filter(
+        (booking) => BookingStatusProto[booking.status] === 'Decline',
+      );
+      const cancels = bookingsGRPCCompatible.filter(
+        (booking) => BookingStatusProto[booking.status] === 'Cancel',
+      );
 
       return {
         data: {
@@ -247,8 +295,8 @@ export class BookingService {
           accept: accepts,
           decline: declines,
           cancel: cancels,
-        }
-      }
+        },
+      };
     } catch (error) {
       console.log(error);
       if (!(error instanceof HttpException)) {

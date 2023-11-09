@@ -1,0 +1,29 @@
+name: Build test
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+jobs:
+  docker-build:
+    name: "Docker build and create an image"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build docker image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          tags: test
