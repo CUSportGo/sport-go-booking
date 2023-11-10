@@ -11,7 +11,11 @@ async function bootstrap() {
     options: {
       package: 'booking',
       protoPath: join(__dirname, 'proto/booking.proto'),
-      url: process.env.BOOKING_GRPC_URL,
+      url: `0.0.0.0:${
+        process.env.BOOKING_GRPC_PORT
+          ? parseInt(process.env.BOOKING_GRPC_PORT)
+          : 8084
+      }`,
     },
   };
 
