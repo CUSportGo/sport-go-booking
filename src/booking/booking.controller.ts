@@ -20,16 +20,19 @@ import { BookingService } from './booking.service';
 import {
   GetAvailableBookingRequest,
   GetAvailableBookingResponse,
+  GetPendingBookingRequest,
+  GetPendingBookingResponse,
 } from './booking.pb';
 import {
   BookingServiceController,
   ViewBookingHistoryRequest,
   ViewBookingHistoryResponse,
 } from './booking.pb';
+import { Observable } from 'rxjs';
 
 @Controller('booking')
 export class BookingController implements BookingServiceController {
-  constructor(private bookingService: BookingService) {}
+  constructor(private bookingService: BookingService) { }
 
   @MessagePattern(CREATE_BOOKING_PATTERN)
   public async createBooking(booking: BookingInfo) {
@@ -58,5 +61,10 @@ export class BookingController implements BookingServiceController {
     request: GetAvailableBookingRequest,
   ): Promise<GetAvailableBookingResponse> {
     return this.bookingService.GetAvailableBooking(request);
+  }
+
+  @GrpcMethod('BookingService', 'GetPendingBooking')
+  getPendingBooking(request: GetPendingBookingRequest): Promise<GetPendingBookingResponse> {
+    return this.bookingService.getPendingBooking(request);
   }
 }

@@ -17,6 +17,8 @@ import { commonUtils } from '../utils/common.utils';
 import {
   GetAvailableBookingRequest,
   GetAvailableBookingResponse,
+  GetPendingBookingRequest,
+  GetPendingBookingResponse,
   TimeSlot,
 } from './booking.pb';
 import { RpcException } from '@nestjs/microservices';
@@ -250,6 +252,45 @@ export class BookingService {
       throw error;
     }
   }
+
+  async getPendingBooking(request: GetPendingBookingRequest): Promise<GetPendingBookingResponse> {
+    try {
+      const sportAreaID = request.SportAreaId;
+      const bookings = await this.bookingRepo.getPendingBookingBySportAreaId(sportAreaID);
+      if (!bookings) {
+        throw new NotFoundException('Booking not found');
+      }
+      const bookingsGRPCCompatible = await Promise.all(
+        bookings.map(async (booking) => {
+          const { createdAt, updatedAt, ...details } = booking;
+          const sportAreaDetail = await this.sportareaService.getSportAreaById({
+            id: sportAreaID,
+          });
+          return {
+            ...details,
+            endAt: booking.endAt.toLocaleString(),
+            startAt: booking.startAt.toLocaleString(),
+            status:
+              BookingStatusProto[
+              booking.status as keyof typeof BookingStatusProto
+              ],
+            sportAreaData: sportAreaDetail.data,
+          };
+        }),
+      )
+      return { data: bookingsGRPCCompatible }
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof RpcException)) {
+        throw new RpcException({
+          code: status.INTERNAL,
+          message: 'Internal server error',
+        });
+      }
+      throw error;
+    }
+  }
+
   // remove crate at updated at
   public async viewBookingHistory(
     request: ViewBookingHistoryRequest,
