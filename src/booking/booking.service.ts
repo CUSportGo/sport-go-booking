@@ -37,7 +37,7 @@ export class BookingService {
     private bookingRepo: BookingRepository,
     private sportareaService: SportareaService,
     private userService: UserService,
-  ) {}
+  ) { }
 
   public async createBooking(booking: BookingInfo) {
     try {
@@ -255,8 +255,11 @@ export class BookingService {
     request: ViewBookingHistoryRequest,
   ): Promise<ViewBookingHistoryResponse> {
     try {
+
       const userId = request.userId;
+      console.log(userId)
       const bookings = await this.bookingRepo.getBookingByUserId(userId);
+      console.log(bookings)
       const bookingsGRPCCompatible = await Promise.all(
         bookings.map(async (booking) => {
           const { createdAt, updatedAt, ...details } = booking;
@@ -269,7 +272,7 @@ export class BookingService {
             startAt: booking.startAt.toLocaleString(),
             status:
               BookingStatusProto[
-                booking.status as keyof typeof BookingStatusProto
+              booking.status as keyof typeof BookingStatusProto
               ],
             sportAreaData: sportAreaDetail.data,
           };
