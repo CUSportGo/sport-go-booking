@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Booking, Prisma } from '@prisma/client';
+import { Booking, BookingStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -66,6 +66,15 @@ export class BookingRepository {
     return await this.db.booking.findMany({
       where: {
         userID: userID,
+      }
+    })
+  }
+
+  async getPendingBookingBySportAreaId(sportAreaId: string): Promise<Booking[]> {
+    return await this.db.booking.findMany({
+      where: {
+        sportAreaID: sportAreaId,
+        status: BookingStatus.Pending
       }
     })
   }
