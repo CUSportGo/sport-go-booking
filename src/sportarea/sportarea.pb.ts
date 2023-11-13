@@ -26,17 +26,20 @@ export interface GetSportAreaByIdRequest {
 }
 
 export interface GetSportAreaByIdResponse {
-  data: SportArea | undefined;
+  data: GetSportAreaByIdItem | undefined;
 }
 
-export interface SportArea {
+export interface GetSportAreaByIdItem {
   id: string;
   name: string;
-  imageURL: string;
+  image: string[];
+  shower: boolean;
+  carPark: boolean;
   sportType: string[];
   location: string;
+  latitude: number;
+  longitude: number;
   description: string;
-  distance: number;
   price: string;
   sportList: SportList[];
 }
