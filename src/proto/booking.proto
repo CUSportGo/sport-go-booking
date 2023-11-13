@@ -62,7 +62,7 @@ enum BookingStatus {
 message SportArea {
     string id = 1;
     string name = 2;
-    string imageURL = 3;
+    repeated string image = 3;
     string description = 4;
 }
 

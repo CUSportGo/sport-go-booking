@@ -58,7 +58,7 @@ export interface BookingTransaction {
 export interface SportArea {
   id: string;
   name: string;
-  imageURL: string;
+  image: string[];
   description: string;
 }
 
