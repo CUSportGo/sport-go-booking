@@ -14,6 +14,10 @@ const checkValidBookingTime = (
   const bookingStartMinutes = bookingStartAt.getMinutes();
   const bookingEndHours = bookingEndAt.getHours();
   const bookingEndMinutes = bookingEndAt.getMinutes();
+  console.log('Open Hour:', openHour);
+  console.log('Close Hour:', closeHour);
+  console.log('Start Time:', bookingStartHours, bookingStartMinutes);
+  console.log('End Time:', bookingEndHours, bookingEndMinutes);
   if (
     bookingStartHours > openHour ||
     (bookingStartHours === openHour && bookingStartMinutes >= openMinute)
