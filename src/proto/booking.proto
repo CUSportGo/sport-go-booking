@@ -50,6 +50,7 @@ message BookingTransaction {
     string endAt = 7;
     BookingStatus status = 8;
     SportArea sportAreaData = 9;
+    string areaName = 10;
 }
 
 enum BookingStatus {
@@ -66,6 +67,7 @@ message SportArea {
     repeated string image = 3;
     string description = 4;
 }
+
 
 
 message GetPendingBookingRequest {
