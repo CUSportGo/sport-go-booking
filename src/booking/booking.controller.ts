@@ -10,6 +10,7 @@ import {
   CANCEL_BOOKING_PATTERN,
   CONFIRM_BOOKING_PATTERN,
   CREATE_BOOKING_PATTERN,
+  DECLINE_BOOKING_PATTERN,
 } from '../constant/booking.constant';
 import {
   BookingInfo,
@@ -54,6 +55,11 @@ export class BookingController implements BookingServiceController {
   @MessagePattern(CONFIRM_BOOKING_PATTERN)
   public async confirmBooking(confirmInfo: ConfirmBookingInfo) {
     return this.bookingService.confirmBooking(confirmInfo);
+  }
+
+  @MessagePattern(DECLINE_BOOKING_PATTERN)
+  public async declineBooking(bookingInfo: ConfirmBookingInfo) {
+    return this.bookingService.declineBooking(bookingInfo);
   }
 
   @GrpcMethod('BookingService', 'GetAvailableBooking')
