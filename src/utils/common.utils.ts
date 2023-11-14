@@ -10,10 +10,10 @@ const checkValidBookingTime = (
   const [openHour, openMinute] = openAt.split(':').map(Number);
   const [closeHour, closeMinute] = closeAt.split(':').map(Number);
 
-  const bookingStartHours = bookingStartAt.getHours();
-  const bookingStartMinutes = bookingStartAt.getMinutes();
-  const bookingEndHours = bookingEndAt.getHours();
-  const bookingEndMinutes = bookingEndAt.getMinutes();
+  const bookingStartHours = bookingStartAt.getUTCHours() + 7;
+  const bookingStartMinutes = bookingStartAt.getUTCMinutes();
+  const bookingEndHours = bookingEndAt.getUTCHours() + 7;
+  const bookingEndMinutes = bookingEndAt.getUTCMinutes();
   console.log('Open Hour:', openHour);
   console.log('Close Hour:', closeHour);
   console.log('Start Time:', bookingStartHours, bookingStartMinutes);
