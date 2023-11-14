@@ -266,6 +266,11 @@ export class BookingService {
           const sportAreaDetail = await this.sportareaService.getSportAreaById({
             id: sportAreaID,
           });
+          const areaName = (await this.sportareaService.getAreaById({
+            sportAreaId: details.sportAreaID,
+            sportType: details.sportType,
+            areaId: details.areaID
+          })).data.name
           return {
             ...details,
             endAt: booking.endAt.toLocaleString(),
@@ -275,6 +280,7 @@ export class BookingService {
               booking.status as keyof typeof BookingStatusProto
               ],
             sportAreaData: sportAreaDetail.data,
+            areaName: areaName,
           };
         }),
       )
@@ -307,6 +313,11 @@ export class BookingService {
           const sportAreaDetail = await this.sportareaService.getSportAreaById({
             id: booking.sportAreaID,
           });
+          const areaName = (await this.sportareaService.getAreaById({
+            sportAreaId: details.sportAreaID,
+            sportType: details.sportType,
+            areaId: details.areaID
+          })).data.name
           return {
             ...details,
             endAt: booking.endAt.toLocaleString(),
@@ -316,6 +327,7 @@ export class BookingService {
               booking.status as keyof typeof BookingStatusProto
               ],
             sportAreaData: sportAreaDetail.data,
+            areaName: areaName
           };
         }),
       );
