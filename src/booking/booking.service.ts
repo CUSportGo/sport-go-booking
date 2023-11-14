@@ -159,6 +159,43 @@ export class BookingService {
     }
   }
 
+  public async declineBooking(bookingInfo: ConfirmBookingInfo) {
+    try {
+      const booking = await this.bookingRepo.getBookingById(
+        bookingInfo.bookingID,
+      );
+      if (!booking) {
+        throw new NotFoundException('Booking not found');
+      }
+      if (booking.status != BookingStatus.Pending) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+
+      const sportAreaOwner = await this.userService.getUserSportArea({
+        sportAreaId: booking.sportAreaID,
+      });
+      if (sportAreaOwner.userId != bookingInfo.userID) {
+        throw new ForbiddenException('Forbidden permission');
+      }
+
+      const updatedBooking = await this.bookingRepo.updateBooking(
+        bookingInfo.bookingID,
+        {
+          ...booking,
+          status: BookingStatus.Decline,
+        },
+      );
+      console.log(updatedBooking);
+      // notify back to user
+    } catch (error) {
+      console.log(error);
+      if (!(error instanceof HttpException)) {
+        throw new InternalServerErrorException('Internal server error');
+      }
+      throw error;
+    }
+  }
+
   async createAvailableTimeSlots(
     startTime: Date,
     endTime: Date,
